@@ -70,13 +70,112 @@ queue[2n+1] 和 queue[2n+2]，子节点大于或等于父节点，是一个最�
 
 ## Queue API 的实现  
 ### offer
+```
+public boolean offer(E e) {
+   if (e == null)
+       throw new NullPointerException();
+   modCount++;
+   int i = size;
+   if (i >= queue.length)
+       grow(i + 1);
+   size = i + 1;
+   if (i == 0)
+       queue[0] = e;
+   else
+       siftUp(i, e);
+   return true;
+}
+```
 ### poll
+```
+public E poll() {
+    if (size == 0)
+        return null;
+    int s = --size;
+    modCount++;
+    E result = (E) queue[0];
+    E x = (E) queue[s];
+    queue[s] = null;
+    if (s != 0)
+        siftDown(0, x);
+    return result;
+}
+
+```
 ### peek
+```
+public E peek() {
+    return (size == 0) ? null : (E) queue[0];
+}
+
+```
 
 ### add
-### remove
-### element
- 
+同offer(直接调用)
+
+从上面offer和poll的代码可以看到，最重要的操作，就是维持堆排序的方法调用，siftUp和siftDown.下面主要分析
+这两个方法。
+
+### siftUp
+```
+private void siftUp(int k, E x) {
+    if (comparator != null)
+        siftUpUsingComparator(k, x);
+    else
+        siftUpComparable(k, x);
+}
+```
+
+### siftDown
+```
+private void siftDown(int k, E x) {
+    if (comparator != null)
+        siftDownUsingComparator(k, x);
+    else
+        siftDownComparable(k, x);
+}
+
+```
+
+从上可以看出，siftUp和siftDown都有两个版本，一个使用comparator的实现，一个使用comparable的实现。
+我们只看usingComparator的实现就好，另一个同理。
+
+### siftUpUsingComparator
+```
+private void siftUpUsingComparator(int k, E x) {
+    while (k > 0) {
+        int parent = (k - 1) >>> 1;
+        Object e = queue[parent];
+        if (comparator.compare(x, (E) e) >= 0)
+            break;
+        queue[k] = e;
+        k = parent;
+    }
+    queue[k] = x;
+}
+
+```
+
+### siftDownUsingComparator
+```
+private void siftDownUsingComparator(int k, E x) {
+    int half = size >>> 1;
+    while (k < half) {
+        int child = (k << 1) + 1;
+        Object c = queue[child];
+        int right = child + 1;
+        if (right < size &&
+            comparator.compare((E) c, (E) queue[right]) > 0)
+            c = queue[child = right];
+        if (comparator.compare(x, (E) c) <= 0)
+            break;
+        queue[k] = c;
+        k = child;
+    }
+    queue[k] = x;
+}
+
+```
 
 
 

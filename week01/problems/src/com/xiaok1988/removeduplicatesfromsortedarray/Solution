@@ -1,0 +1,19 @@
+package com.xiaok1988.removeduplicatesfromsortedarray;
+
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        int pre = 0;
+        int count= nums.length;
+        for (int i = 1;i < count;) {
+            if (nums[pre] == nums[i]) {
+                System.arraycopy(nums, i, nums, pre, nums.length - i);
+                count--;
+            } else {
+                pre++;
+                i++;
+            }
+
+        }
+        return count;
+    }
+}
